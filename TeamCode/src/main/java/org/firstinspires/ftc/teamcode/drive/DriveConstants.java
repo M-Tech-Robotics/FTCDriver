@@ -48,8 +48,8 @@ public class DriveConstants {
      * Encoder Ticks: 28
      * Output Shaft Ticks: 560
      */
-    public static final double TICKS_PER_REV = 560; //560 is Output Shaft
-    public static final double MAX_RPM = 300;
+    public static final double TICKS_PER_REV = 312; //560 is Output Shaft
+    public static final double MAX_RPM = 537.7;
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -71,7 +71,7 @@ public class DriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public static double WHEEL_RADIUS = 2; // in
+    public static double WHEEL_RADIUS = 1.88976; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
     public static double TRACK_WIDTH = 10; // in
 

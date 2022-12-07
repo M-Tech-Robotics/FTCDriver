@@ -157,6 +157,9 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
 
+        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+
+
         // Linear Slide //
         leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
         rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
