@@ -48,8 +48,8 @@ public class DriveConstants {
      * Encoder Ticks: 28
      * Output Shaft Ticks: 560
      */
-    public static final double TICKS_PER_REV = 312; //560 is Output Shaft
-    public static final double MAX_RPM = 537.7;
+    public static final double TICKS_PER_REV = 537.6; //560 is Output Shaft
+    public static final double MAX_RPM = 312;
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -60,8 +60,11 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+//            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(10, 0, 17, 4); //10, 0, 17, 4 //20, 1, 4, 9
+
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -73,7 +76,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.88976; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 10; // in
+    public static double TRACK_WIDTH = 12.1; //10
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -81,9 +84,9 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
-    public static double kStatic = 0;
+    public static double kV = 0.01978;
+    public static double kA = 0.00020;
+    public static double kStatic = 0.11900;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -92,8 +95,25 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 30;
-    public static double MAX_ACCEL = 30;
+
+//    Voltage Compensated kF: 13.803677168059446
+
+    // 8 sec
+//Max Velocity: 54.44427573402753
+//    Voltage Compensated kF: 13.074433422112063
+
+    //2 sec
+//Max Velocity: 54.775010804137786
+//      90%: 49.2975097237240074
+//      95%: 52.0362602639308967
+//    Voltage Compensated kF: 13.586743712968643
+
+
+
+
+
+    public static double MAX_VEL = 55.326838684099535;
+    public static double MAX_ACCEL = 20;
     public static double MAX_ANG_VEL = Math.toRadians(180);
     public static double MAX_ANG_ACCEL = Math.toRadians(180);
 

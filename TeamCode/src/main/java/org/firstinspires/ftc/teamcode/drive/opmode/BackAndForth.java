@@ -47,10 +47,6 @@ public class BackAndForth extends LinearOpMode {
 
         waitForStart();
 
-        DcMotorEx linearslide = hardwareMap.get(DcMotorEx.class, "linearslide");
-        linearslide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        linearslide.setPower(1);
-
         while (opModeIsActive() && !isStopRequested()) {
             drive.followTrajectory(trajectoryForward);
             drive.followTrajectory(trajectoryBackward);

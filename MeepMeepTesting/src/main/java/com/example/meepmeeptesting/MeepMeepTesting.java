@@ -38,7 +38,8 @@ public class MeepMeepTesting {
                 .setDriveTrainType(DriveTrainType.MECANUM)
 
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(30, 61, toRadians(270)))
+                        drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+
                                 .splineToLinearHeading(new Pose2d(34, 55.5, toRadians(180)), toRadians(0))
                                 .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
 
@@ -57,25 +58,25 @@ public class MeepMeepTesting {
                                 .build()
                 );
 
-//        RoadRunnerBotEntity mySecondBot = new DefaultBotBuilder(meepMeep)
-//                // We set this bot to be red
-//                .setColorScheme(new ColorSchemeBlueLight())
-//                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 10)
-//                .setDriveTrainType(DriveTrainType.MECANUM)
-//
-//                .followTrajectorySequence(drive ->
-//                        drive.trajectorySequenceBuilder(new Pose2d(GridToInch(1.5), -61.63, Math.toRadians(90)))
-//                                .strafeLeft(22)
-//                                .forward(GridToInch(1) + 3)
-//                                .strafeLeft(14)
-//
-//                                .waitSeconds(2)
-//
-//                                .strafeTo(new Vector2d(POS.getX(), -34))
-//
-//                                .waitSeconds(5)
-//                                .build()
-//                );
+        RoadRunnerBotEntity mySecondBot = new DefaultBotBuilder(meepMeep)
+                // We set this bot to be red
+                .setColorScheme(new ColorSchemeBlueLight())
+                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 10)
+                .setDriveTrainType(DriveTrainType.MECANUM)
+
+                .followTrajectorySequence(drive ->
+                        drive.trajectorySequenceBuilder(new Pose2d(GridToInch(1.5), -61.63, Math.toRadians(90)))
+                                .strafeLeft(22)
+                                .forward(GridToInch(1) + 3)
+                                .strafeLeft(14)
+
+                                .waitSeconds(2)
+
+                                .strafeTo(new Vector2d(POS.getX(), -34))
+
+                                .waitSeconds(5)
+                                .build()
+                );
 
 
 
@@ -83,7 +84,7 @@ public class MeepMeepTesting {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)
-//                .addEntity(mySecondBot)
+                .addEntity(mySecondBot)
                 .start();
     }
 

@@ -21,12 +21,21 @@
 
 package org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag;
 
+import static java.lang.Math.toRadians;
+
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.systems.Controllers.drivetrains.MainDriveTrain;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.systems.Components.IMU;
+import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -34,12 +43,11 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Main Vision", group = "Testing")
-public class AprilTagVision extends LinearOpMode
+@Autonomous(name = "Test Vision", group = "Testing")
+public class TestVision extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagPipeline aprilTagPipeline;
-    MainDriveTrain drive;
 
 
     static final double FEET_PER_METER = 3.28084;
@@ -66,15 +74,41 @@ public class AprilTagVision extends LinearOpMode
 
     AprilTagDetection tagOfInterest = null;
 
-    @Override
-    public void runOpMode()
-    {
-        drive = new MainDriveTrain(hardwareMap, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    SampleMecanumDrive drive;
+    Intake intake;
+    DcMotorEx SlideEncoder;
+    public DcMotorEx leftSlide;
+    public DcMotorEx rightSlide;
+    IMU IMU;
 
-        drive.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        InitAll();
+
+        TrajectorySequence leftParking = drive.trajectorySequenceBuilder(new Pose2d())
+                .back(9)
+                .strafeLeft(30)
+                .build();
+        TrajectorySequence centerParking = drive.trajectorySequenceBuilder(new Pose2d())
+                .back(9)
+                .strafeLeft(15)
+                .build();
+        TrajectorySequence rightParking = drive.trajectorySequenceBuilder(new Pose2d())
+                .back(9)
+                .strafeRight(10)
+                .build();
+
+        TrajectorySequence DropCone = drive.trajectorySequenceBuilder(new Pose2d())
+                .forward(62)
+                .strafeRight(23)
+                .build();
+
+        Trajectory MoveToHighJunction = drive.trajectoryBuilder(new Pose2d())
+                .forward(7)
+                .build();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -173,6 +207,36 @@ public class AprilTagVision extends LinearOpMode
          * during the init loop.
          */
 
+        drive.followTrajectorySequence(DropCone);
+        LiftCone();
+        drive.followTrajectory(MoveToHighJunction);
+
+        sleep(1000);
+        while (SlideEncoder.getCurrentPosition() != SlideEncoder.getTargetPosition()) {
+            sleep(40);
+        }
+
+        intake.Release();
+
+//        waitFor();
+
+
+
+
+
+
+
+
+
+        telemetry.addData("Angle", IMU.getAngle());
+
+//        drive.followTrajectorySequence(trajectory);
+
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("finalX", poseEstimate.getX());
+        telemetry.addData("finalY", poseEstimate.getY());
+        telemetry.addData("finalHeading", poseEstimate.getHeading());
+        telemetry.update();
         /* Update the telemetry */
         if(tagOfInterest != null)
         {
@@ -199,48 +263,20 @@ public class AprilTagVision extends LinearOpMode
             telemetry.addLine(String.valueOf(tagOfInterest.id));
 
             if (tagOfInterest.id == 16) {
-                telemetry.addLine("Tag: Left");
-                telemetry.update();
-                MoveTo("Forward", .7, 2);
-                sleep(800);
-
-                MoveTo("Left", .7, 1);
-                sleep(1000);
-
-
-                MoveTo("None", 0, 0);
+                drive.followTrajectorySequence(leftParking);
             }
 
             if (tagOfInterest.id == 18) {
-                telemetry.addLine("Tag: Middle");
-                telemetry.update();
-
-                MoveTo("Forward", .7, 2);
-
-                sleep(800);
-
-                MoveTo("None", 0, 0);
+                drive.followTrajectorySequence(centerParking);
             }
 
             if (tagOfInterest.id == 19) {
-                telemetry.addLine("Tag: Right");
-                telemetry.update();
-                MoveTo("Forward", .7, 2);
-
-                sleep(800);
-
-                MoveTo("Right", .7, 1);
-
-                sleep(900);
-
-
-                MoveTo("None", 0, 0);
+                drive.followTrajectorySequence(rightParking);
             }
         }
 
 
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {sleep(20);}
     }
 
     void tagToTelemetry(AprilTagDetection detection) {
@@ -253,55 +289,38 @@ public class AprilTagVision extends LinearOpMode
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
 
+    void InitAll() {
+        drive = new SampleMecanumDrive(hardwareMap);
+        intake = new Intake(hardwareMap);
+        IMU = new IMU(hardwareMap);
+        //// //// ////
+        SlideEncoder = hardwareMap.get(DcMotorEx.class, "linearMotor");
+        SlideEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        SlideEncoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //// //// ////
+        leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
+        rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
 
-    void MoveTo(String Direction, double Power, int Time) {
-        if (Direction == "Forward") {
-            drive.leftFront.setPower(Power);
-            drive.leftRear.setPower(Power);
-            drive.rightFront.setPower(Power);
-            drive.rightRear.setPower(Power);
-
-            return;
-        }
-
-        if (Direction == "Left") {
-            drive.leftFront.setPower(-Power);
-            drive.leftRear.setPower(Power);
-            drive.rightFront.setPower(Power);
-            drive.rightRear.setPower(-Power);
-
-            return;
-        }
-
-        if (Direction == "Right") {
-            drive.leftFront.setPower(Power);
-            drive.leftRear.setPower(-Power);
-            drive.rightFront.setPower(-Power);
-            drive.rightRear.setPower(Power);
-
-            return;
-        }
-
-        if (Direction == "Back") {
-            drive.leftFront.setPower(-Power);
-            drive.leftRear.setPower(-Power);
-            drive.rightFront.setPower(-Power);
-            drive.rightRear.setPower(-Power);
-
-            return;
-        }
+        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        if (Direction == "None") {
-            drive.leftFront.setPower(0);
-            drive.leftRear.setPower(0);
-            drive.rightFront.setPower(0);
-            drive.rightRear.setPower(0);
+        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            return;
-        }
+        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
+    public void LiftCone() {
+        leftSlide.setTargetPosition(-1244);
+        rightSlide.setTargetPosition(-1244);
 
 
+        leftSlide.setPower(.5);
+        rightSlide.setPower(.5);
+
+
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
 }
