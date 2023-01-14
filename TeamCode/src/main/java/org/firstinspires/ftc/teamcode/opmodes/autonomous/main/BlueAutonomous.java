@@ -1,13 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.autonomous.main;
 
-import static java.lang.Math.toRadians;
-
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,12 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.opmodes.teleop.testing.SlideTest;
 import org.firstinspires.ftc.teamcode.systems.Components.IMU;
 import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
-import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
-import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.SlideHeight;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
 @Config
@@ -33,32 +23,37 @@ public class BlueAutonomous extends LinearOpMode {
     public DcMotorEx rightSlide;
     IMU IMU;
 
-    TrajectorySequence leftParking = drive.trajectorySequenceBuilder(new Pose2d())
-            .back(9)
-            .strafeLeft(30)
-            .build();
-    TrajectorySequence centerParking = drive.trajectorySequenceBuilder(new Pose2d())
-            .back(9)
-            .strafeLeft(15)
-            .build();
-    TrajectorySequence rightParking = drive.trajectorySequenceBuilder(new Pose2d())
-            .back(9)
-            .strafeRight(10)
-            .build();
+    int HighJunct = 1200;
+    int LowJunct = 100;
+    int MidJunct = 444;
+    int Ground = 0;
+
+//    TrajectorySequence leftParking = drive.trajectorySequenceBuilder(new Pose2d())
+//            .back(9)
+//            .strafeLeft(30)
+//            .build();
+//    TrajectorySequence centerParking = drive.trajectorySequenceBuilder(new Pose2d())
+//            .back(9)
+//            .strafeLeft(15)
+//            .build();
+//    TrajectorySequence rightParking = drive.trajectorySequenceBuilder(new Pose2d())
+//            .back(9)
+//            .strafeRight(10)
+//            .build();
 
     @Override
     public void runOpMode() throws InterruptedException {
         InitAll();
 
         //// //// ////
-        TrajectorySequence DropCone = drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
-                .forward(70)
-                .strafeRight(20)
-                .build();
-
-        Trajectory MoveToHighJunction = drive.trajectoryBuilder(DropCone.end())
-                .forward(9)
-                .build();
+//        TrajectorySequence DropCone = drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+//                .forward(70)
+//                .strafeRight(20)
+//                .build();
+//
+//        Trajectory MoveToHighJunction = drive.trajectoryBuilder(DropCone.end())
+//                .forward(9)
+//                .build();
 
 
 
@@ -74,24 +69,24 @@ public class BlueAutonomous extends LinearOpMode {
 //                .strafeTo(new Vector2d(2.5 * 24, -34))
 //                .build();
 
-        drive.followTrajectorySequence(DropCone);
-        LiftCone();
-        drive.followTrajectory(MoveToHighJunction);
+//        drive.followTrajectorySequence(DropCone);
+        LiftCone(HighJunct, 0.5, "High");
+//        drive.followTrajectory(MoveToHighJunction);
+//        DropCone();
+        sleep(2000);
+        LiftCone(LowJunct, 0.5, "Low");
+        sleep(2000);
 
-        do {
-            sleep(40);
-        } while (leftSlide.isBusy());
+        LiftCone(MidJunct, 0.5, "Mid");
+        sleep(2000);
+
+        LiftCone(Ground, 0.5, "Ground");
+        sleep(2000);
+
 
 //        waitFor();
 
         intake.Release();
-
-
-
-
-
-
-
 
         telemetry.addData("Angle", IMU.getAngle());
 
@@ -123,20 +118,37 @@ public class BlueAutonomous extends LinearOpMode {
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        leftSlide.setTargetPosition(SlideEncoder.getCurrentPosition());
+        rightSlide.setTargetPosition(SlideEncoder.getCurrentPosition());
+
         rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void LiftCone() {
-        leftSlide.setTargetPosition(-1244);
-        rightSlide.setTargetPosition(-1244);
+    public void LiftCone(int Position, double Power, String debugName) throws InterruptedException {
+        leftSlide.setTargetPosition(Position);
+        SlideEncoder.setTargetPosition(Position);
 
-
-        leftSlide.setPower(.5);
-        rightSlide.setPower(.5);
-
+        leftSlide.setPower(Power);
 
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        do {
+            Thread.sleep(40);
+            telemetry.addData("Name", debugName);
+            telemetry.addData("TargetPosition", SlideEncoder.getTargetPosition());
+            telemetry.addData("CurrentPosition", SlideEncoder.getCurrentPosition());
+            telemetry.addData("IsAtPos", Math.abs(SlideEncoder.getTargetPosition() - SlideEncoder.getCurrentPosition()));
+            telemetry.update();
+        } while (!getTols(20));
+    }
+
+    public void DropCone() {
+        leftSlide.setTargetPosition(-200);
+        rightSlide.setTargetPosition(-200);
+    }
+
+    public boolean getTols(int Tol) {
+        return Math.abs(SlideEncoder.getTargetPosition() - SlideEncoder.getCurrentPosition()) < Tol;
     }
 
 //    public void SlideDropOff(SlideHeight height) throws InterruptedException {
@@ -162,15 +174,14 @@ public class BlueAutonomous extends LinearOpMode {
 //        intake.Release();
 //    }
 
-    public boolean isAtPosition(int tolerance) {
-        return Math.abs(SlideEncoder.getCurrentPosition() - 1244) < tolerance;
+    public int currentPos() {
+        return Math.abs(SlideEncoder.getCurrentPosition());
     }
 
     public void waitFor() throws InterruptedException {
         do {
             sleep(40);
             telemetry.addData("CurrentPos", Math.abs(SlideEncoder.getCurrentPosition() - SlideEncoder.getTargetPosition()));
-            telemetry.addData("Is At POS", isAtPosition(15));
             telemetry.update();
         } while (rightSlide.isBusy());
     }
