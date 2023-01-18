@@ -34,34 +34,56 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setColorScheme(new ColorSchemeRedLight())
-                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 10)
+                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 14.5)
                 .setDriveTrainType(DriveTrainType.MECANUM)
 
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+                                drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+                                        .forward(48)
+                                        .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
 
-                                .splineToLinearHeading(new Pose2d(34, 55.5, toRadians(180)), toRadians(0))
-                                .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
+                                        .waitSeconds(2)
 
-                                .waitSeconds(2)
+                                        // Go To Stack
+//                                        .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
+//                                        .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+//
+//                                        .waitSeconds(2)
 
-                                .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
-                                .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
-
-                                .waitSeconds(2)
-
-                                .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
-                                .forward(4)
-                                .back(4)
+                                        // Go to Pole
+                                        .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
+                                        .forward(4)
+                                        .back(4)
 
 
-                                .build()
+                                        .build()
                 );
+
+//                .followTrajectorySequence(drive ->
+//                        drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+//
+//                                .splineToLinearHeading(new Pose2d(34, 55.5, toRadians(180)), toRadians(0))
+//                                .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
+//
+//                                .waitSeconds(2)
+//
+//                                .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
+//                                .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+//
+//                                .waitSeconds(2)
+//
+//                                .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
+//                                .forward(4)
+//                                .back(4)
+//
+//
+//                                .build()
+//                );
 
         RoadRunnerBotEntity mySecondBot = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be red
                 .setColorScheme(new ColorSchemeBlueLight())
-                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 10)
+                .setConstraints(30, 40, Math.toRadians(360), Math.toRadians(360), 14.5)
                 .setDriveTrainType(DriveTrainType.MECANUM)
 
                 .followTrajectorySequence(drive ->
@@ -84,7 +106,7 @@ public class MeepMeepTesting {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)
-                .addEntity(mySecondBot)
+//                .addEntity(mySecondBot)
                 .start();
     }
 

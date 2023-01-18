@@ -59,16 +59,16 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
+    public static final boolean RUN_USING_ENCODER = false;
 //    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
 //            14.426575317778232); //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(21, 0, 3,
-            15); //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV)
+//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(21, 0, 3,
+//            15); //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV)
 
 
-//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-//            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
 
 //    kV = 0.01776, kStatic = 0.12010 (R^2 = 0.96)
@@ -102,9 +102,10 @@ public class DriveConstants {
 //    public static double kA = 0.00015;
 //    public static double kStatic = 0.11220;
 
+    //kV = 0.00666, kStatic = 0.11437 (R^2 = 0.97)
     public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
-    public static double kStatic = 0;
+    public static double kA = 0.00666;
+    public static double kStatic = 0.11437;
 
 
     /*
@@ -130,7 +131,7 @@ public class DriveConstants {
 //    Max Angular Velocity (rad): 0.5777778029441833
 
 
-    public static double MAX_ANG_VEL = Math.toRadians(25.719439319709025);
+    public static double MAX_ANG_VEL = 325.473;
     public static double MAX_ANG_ACCEL = Math.toRadians(180);
 
     public static double encoderTicksToInches(double ticks) {

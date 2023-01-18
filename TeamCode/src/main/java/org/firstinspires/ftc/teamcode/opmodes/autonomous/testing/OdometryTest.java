@@ -21,12 +21,12 @@ public class OdometryTest extends LinearOpMode {
     private final static String rfName = "rightFront";
     private final static String rbName = "rightRear";
     private final static String lfName = "leftFront";
-    private final static String lbName = "leftRear ";
+    private final static String lbName = "leftRear";
     private final static File wheelBaseSeparationFile = AppUtil.getInstance().getSettingsFile("wheelBaseSeparation.txt");
     private final static File horizontalTickOffsetFile = AppUtil.getInstance().getSettingsFile("horizontalTickOffset.txt");
-    private final static String verticalLeftEncoderName = "IntakeMotor";
-    private final static String verticalRightEncoderName = "leftSlide";
-    private final static String horizontalEncoderName = "rightSlide";
+    private final static String verticalLeftEncoderName = "leftFront";
+    private final static String verticalRightEncoderName = "rightFront";
+    private final static String horizontalEncoderName = "leftRear";
     private final ElapsedTime timer = new ElapsedTime();
     //Drive motors
     private DcMotor right_front, right_back, left_front, left_back;

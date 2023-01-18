@@ -52,22 +52,22 @@ public class SlidePositionTest extends LinearOpMode{
             if (Slide.isAtPosition()) {
                 if (gamepad1.dpad_up) {
                     Slide.setTargetPosition(720);
-                    Slide.waitFor();
+                    Slide.waitOn();
                 }
 
                 if (gamepad1.dpad_down) {
                     Slide.setTargetPosition(0);
-                    Slide.waitFor();
+                    Slide.waitOn();
                 }
 
                 if (gamepad1.dpad_left) {
                     Slide.setTargetPosition(150);
-                    Slide.waitFor();
+                    Slide.waitOn();
                 }
 
                 if (gamepad1.dpad_right) {
                     Slide.setTargetPosition(250);
-                    Slide.waitFor();
+                    Slide.waitOn();
                 }
             }
 

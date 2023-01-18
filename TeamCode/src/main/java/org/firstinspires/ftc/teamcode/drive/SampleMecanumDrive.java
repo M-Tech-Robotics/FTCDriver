@@ -72,7 +72,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     private TrajectoryFollower follower;
 
-    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    public DcMotorEx leftFront, leftRear, rightRear, rightFront;
 
 
     private List<DcMotorEx> motors;
@@ -159,7 +159,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
 
-//        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
 
 
         // Linear Slide //
