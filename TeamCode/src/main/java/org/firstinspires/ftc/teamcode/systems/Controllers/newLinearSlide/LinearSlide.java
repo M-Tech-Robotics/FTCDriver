@@ -46,8 +46,6 @@ public class LinearSlide {
         leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
         rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
 
-        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
-
 //        slides = Arrays.asList(leftSlide, rightSlide);
 //
 //        for (DcMotorEx slide : slides) {
@@ -62,6 +60,7 @@ public class LinearSlide {
         leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -72,8 +71,8 @@ public class LinearSlide {
         rightSlide.setTargetPosition(Levels.Ground.pos);
 
 
-        leftSlide.setPower(1);
-        rightSlide.setPower(1);
+        leftSlide.setPower(.4);
+        rightSlide.setPower(.4);
 
 
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -136,11 +135,11 @@ public class LinearSlide {
 //            slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        }
 
-        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -172,6 +171,8 @@ public class LinearSlide {
         leftSlide.setPower(power);
         rightSlide.setPower(power);
     }
+
+
 
 
     public int getTargetHeight() {

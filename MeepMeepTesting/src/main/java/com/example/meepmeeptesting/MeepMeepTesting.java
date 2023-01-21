@@ -45,10 +45,10 @@ public class MeepMeepTesting {
                                         .waitSeconds(2)
 
                                         // Go To Stack
-//                                        .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
-//                                        .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
-//
-//                                        .waitSeconds(2)
+                                        .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
+                                        .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+
+                                        .waitSeconds(2)
 
                                         // Go to Pole
                                         .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))

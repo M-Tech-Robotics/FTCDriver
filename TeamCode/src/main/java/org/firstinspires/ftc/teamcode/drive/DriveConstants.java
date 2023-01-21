@@ -38,6 +38,13 @@ public class DriveConstants {
      * Output Shaft Ticks: 560
      */
 
+//    IPv4 Address. . . . . . . . . . . : 192.168.43.83(Preferred)
+//    Subnet Mask . . . . . . . . . . . : 255.255.255.0
+//    Lease Obtained. . . . . . . . . . : Thursday, January 19, 2023 4:40:08 PM
+//    Lease Expires . . . . . . . . . . : Thursday, January 19, 2023 5:40:08 PM
+//    Default Gateway . . . . . . . . . : 192.168.43.1
+//    DHCP Server . . . . . . . . . . . : 192.168.43.1
+
 
 
     /*
@@ -86,7 +93,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.88976; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 9.22; //10
+    public static double TRACK_WIDTH = 7.90; //10
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -102,10 +109,11 @@ public class DriveConstants {
 //    public static double kA = 0.00015;
 //    public static double kStatic = 0.11220;
 
-    //kV = 0.00666, kStatic = 0.11437 (R^2 = 0.97)
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0.00666;
-    public static double kStatic = 0.11437;
+    //kV = 0.01813, kStatic = 0.10998 (R^2 = 0.97)
+    //
+    public static double kV = 0.01813;
+    public static double kA = 0.00001;
+    public static double kStatic = 0.10998;
 
 
     /*
@@ -131,7 +139,7 @@ public class DriveConstants {
 //    Max Angular Velocity (rad): 0.5777778029441833
 
 
-    public static double MAX_ANG_VEL = 325.473;
+    public static double MAX_ANG_VEL = 5.816545437207842;
     public static double MAX_ANG_ACCEL = Math.toRadians(180);
 
     public static double encoderTicksToInches(double ticks) {

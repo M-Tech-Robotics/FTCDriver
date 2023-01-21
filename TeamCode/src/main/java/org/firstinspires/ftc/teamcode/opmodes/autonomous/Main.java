@@ -31,42 +31,66 @@ public class Main extends LinearOpMode {
 
     IMU IMU;
 
-    TrajectorySequence dropPreload = drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
-            .forward(48)
-            .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
-            .build();
-
-    TrajectorySequence goToStack = drive.trajectorySequenceBuilder(dropPreload.end())
-            .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
-            .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
-
-            .waitSeconds(2)
-
-            .build();
-
-    TrajectorySequence goToPole = drive.trajectorySequenceBuilder(goToStack.end())
-            .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
-            .forward(4)
-            .back(4)
-            .build();
-
-
-//    TrajectorySequence leftParking = drive.trajectorySequenceBuilder(new Pose2d())
-//            .back(9)
-//            .strafeLeft(30)
+//    public TrajectorySequence test = drive.trajectorySequenceBuilder(new Pose2d())
+//            .forward(48)
+//            .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
+//
+//            .waitSeconds(2)
+//
+//            // Go To Stack
+//            .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
+//            .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+//
+//            .waitSeconds(2)
+//
+//            // Go to Pole
+//            .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
+//            .forward(4)
+//            .back(4)
+//
+//
 //            .build();
-//    TrajectorySequence centerParking = drive.trajectorySequenceBuilder(new Pose2d())
-//            .back(9)
-//            .strafeLeft(15)
+
+//    TrajectorySequence dropPreload = drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+//            .forward(48)
+//            .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
 //            .build();
-//    TrajectorySequence rightParking = drive.trajectorySequenceBuilder(new Pose2d())
-//            .back(9)
-//            .strafeRight(10)
+//
+//    TrajectorySequence goToStack = drive.trajectorySequenceBuilder(dropPreload.end())
+//            .lineToSplineHeading(new Pose2d(33, 12, toRadians(0)))
+//            .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+//
+//            .waitSeconds(2)
+//
+//            .build();
+//
+//    TrajectorySequence goToPole = drive.trajectorySequenceBuilder(goToStack.end())
+//            .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
+//            .forward(4)
+//            .back(4)
 //            .build();
 
     @Override
     public void runOpMode() throws InterruptedException {
         InitAll();
+
+        TrajectorySequence test = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
+                .forward(48)
+                .lineToSplineHeading(new Pose2d(62, -6, toRadians(-92)))
+
+//                .waitSeconds(2)
+
+                // Go To Stack
+                .lineToSplineHeading(new Pose2d(48, 12, toRadians(180)))
+//                .lineToSplineHeading(new Pose2d(63, 12, toRadians(0)))
+//
+//                .waitSeconds(2)
+//
+//                // Go to Pole
+//                .lineToSplineHeading(new Pose2d(23.5, 13, toRadians(270)))
+//                .forward(4)
+//                .back(4)
+                .build();
 
         //// //// ////
 
@@ -77,7 +101,7 @@ public class Main extends LinearOpMode {
 
 
         if (isStopRequested()) return;
-        drive.followTrajectorySequence(dropPreload);
+        drive.followTrajectorySequence(test);
 
 
 //        intake.Release();

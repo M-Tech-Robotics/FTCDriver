@@ -33,11 +33,15 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 9.915 ; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = 6; // in; offset of the lateral wheel
+    public static double FORWARD_OFFSET = -6.33; // in; offset of the lateral wheel
 
-    public static double X_MULTIPLIER = 1; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+//    public static double X_MULTIPLIER = 0.9855055030192697; // Multiplier in the X direction prev:1.00816614578
+//    public static double Y_MULTIPLIER = 1.0048089; // Multiplier in the Y direction
 
+
+    //0.9969846009 0.9968006152 0.9973564719374416
+    public static double X_MULTIPLIER = 0.9973564719374416; // Multiplier in the X direction prev:1.00816614578
+    public static double Y_MULTIPLIER = 1.0055238128260873; // Multiplier in the Y direction
 
     public final String leftName = "leftFront";
     public final String rightName = "rightFront";
@@ -54,21 +58,11 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         ));
 
 
-        leftMotor = hardwareMap.get(DcMotorEx.class, leftName);
-        rightMotor = hardwareMap.get(DcMotorEx.class, rightName);
-        backMotor = hardwareMap.get(DcMotorEx.class, frontName);
-
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, leftName));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, rightName));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, frontName));
+
+        frontEncoder.setDirection(Encoder.Direction.REVERSE);
 
 
 //        frontEncoder.setDirection(Encoder.Direction.REVERSE);
@@ -92,14 +86,10 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     @NonNull
     @Override
     public List<Double> getWheelVelocities() {
-        // TODO: If your encoder velocity can exceed 32767 counts / second (such as the REV Through Bore and other
-        //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a
-        //  compensation method
-
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getRawVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getRawVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(frontEncoder.getRawVelocity()) * Y_MULTIPLIER
+                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
         );
     }
 }

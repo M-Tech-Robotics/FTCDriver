@@ -26,9 +26,9 @@ public class DeadWheelTest extends LinearOpMode {
     // while a positive offset means it is closer to the front.
 
 
-    public static final double CENTER_WHEEL_OFFSET = -2.1;
+    public static final double CENTER_WHEEL_OFFSET = -6.33;
 
-    public static final double WHEEL_DIAMETER = 1.88976;
+    public static final double WHEEL_DIAMETER = 1.3779528;
     // if needed, one can add a gearing term here
     public static final double TICKS_PER_REV = 8192;
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
@@ -50,10 +50,16 @@ public class DeadWheelTest extends LinearOpMode {
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
         leftOdometer = frontLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
-        rightOdometer = frontRight.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        rightOdometer = frontRight.encoder.setDistancePerPulse(DISTANCE_PER_PULSE); //backLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         centerOdometer = backLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
-        rightOdometer.setDirection(Motor.Direction.REVERSE);
+
+
+        centerOdometer.setDirection(Motor.Direction.REVERSE);
+
+        leftOdometer.reset();
+        rightOdometer.reset();
+        centerOdometer.reset();
 
         odometry = new HolonomicOdometry(
                 leftOdometer::getDistance,

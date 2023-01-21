@@ -15,7 +15,7 @@ import org.openftc.apriltag.AprilTagDetection;
 public class slidePosTest extends LinearOpMode {
     public LinearSlide slide;
     public DcMotorEx leftSlide, rightSlide;
-
+    public int highest = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,21 +32,29 @@ public class slidePosTest extends LinearOpMode {
         leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
         rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
 
-        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        setRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
+        setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        leftSlide.setDirection(DcMotorEx.Direction.REVERSE);
 
         telemetry.addLine("Linear Slide Initialized.");
         telemetry.update();
     }
 
     public void SlideController() {
-        leftSlide.setPower(-gamepad2.right_trigger);
-        rightSlide.setPower(-gamepad2.right_trigger);
+        leftSlide.setPower(gamepad1.right_trigger/2);
+        rightSlide.setPower(gamepad1.right_trigger/2);
 
+        if (gamepad1.b) {
+            setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            setRunMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        if (gamepad1.a) {
+            highest = 0;
+        }
 
         if (gamepad1.dpad_up) {
             leftSlide.setPower(0.40);
@@ -85,6 +93,11 @@ public class slidePosTest extends LinearOpMode {
 
         telemetry.addData("Left State:", leftSlide.isBusy());
         telemetry.addData("Right State:", rightSlide.isBusy());
+
+        if (leftSlide.getCurrentPosition() > highest) {
+            highest = leftSlide.getCurrentPosition();
+        }
+        telemetry.addData("Highest Height:", highest);
 
         telemetry.update();
     }

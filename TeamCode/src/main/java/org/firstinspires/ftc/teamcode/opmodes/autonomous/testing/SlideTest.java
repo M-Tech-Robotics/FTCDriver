@@ -14,97 +14,80 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.linearSlide.linearSlide;
+import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.SlideHeight;
 
 import java.io.File;
 
 @Autonomous(name = "SlideTest", group = "Testing")
 public class SlideTest extends LinearOpMode {
-    DcMotorEx SlideEncoder;
-    public DcMotorEx leftSlide;
-    public DcMotorEx rightSlide;
+    LinearSlide slide;
+    boolean inAction = false;
     Intake intake;
-
-    linearSlide Slide;
 
 
     @Override
     public void runOpMode() throws InterruptedException {
+        slide = new LinearSlide(hardwareMap);
         intake = new Intake(hardwareMap);
 
-        SlideEncoder = hardwareMap.get(DcMotorEx.class, "linearMotor");
-        SlideEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        SlideEncoder.setTargetPosition(1244);
-
-
-        SlideEncoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
-//        Slide = new linearSlide(hardwareMap);
-        leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
-        rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
-
-        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-        leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        rightSlide.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        leftSlide.setTargetPosition(-1244);
-        rightSlide.setTargetPosition(-1244);
-
-
-        leftSlide.setPower(1);
-        rightSlide.setPower(1);
-
-
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
+        slide.setMotorPower(.4);
         waitForStart();
 
-        sleep(2000);
-
-        leftSlide.setTargetPosition(-1200);
-        rightSlide.setTargetPosition(-1200);
-
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-        sleep(800);
-
-        if (!SlideEncoder.isBusy()) {
-            intake.Release();
-        }
-
-
-
         //1244
-        while (opModeIsActive() && !isStopRequested()) {
-
-
-//            SlideController();
-            telemetry.addData("CurrentPOS", SlideEncoder.getCurrentPosition());
-            telemetry.update();
+        if (opModeIsActive() && !isStopRequested()) {
+            goToPos(1227);
+            goToPos(896);
+            goToPos(405);
+            goToPos(0);
         }
+
+//        while (opModeIsActive() && !isStopRequested()) {
+//            if (gamepad1.a && !inAction) {
+//                inAction = true;
+//
+//                goToPos(1000);
+//
+//                sleep(400);
+//
+//                intake.Release();
+//
+//                inAction = false;
+//            } else if (gamepad1.b && !inAction) {
+//                inAction = true;
+//
+//                goToPos(200);
+//
+//                sleep(400);
+//
+//                intake.Pickup();
+//
+//                inAction = false;
+//            }
+//        }
 
     }
-    public void SlideController() {
-        Slide.leftSlide.setPower(-gamepad1.right_trigger);
-        Slide.rightSlide.setPower(-gamepad1.right_trigger);
 
 
-        if (gamepad1.dpad_down) {
-            Slide.leftSlide.setPower(1.0);
-            Slide.rightSlide.setPower(1.0);
-        } else if (gamepad1.right_trigger == 0) {
-            Slide.leftSlide.setPower(-0.40);
-            Slide.rightSlide.setPower(-0.40);
-        }
+    public void goToPos(int Position) throws InterruptedException {
+        slide.setTargetPosition(Position);
+
+        do {
+            Thread.sleep(40);
+            slideTelemetry();
+        } while (!slide.isAtPosition(8));
+
+        sleep(2000);
+    }
+    public void slideTelemetry() {
+        telemetry.addData("Position:", slide.getEncoderCount());
+
+        telemetry.addData("Target:", slide.getTargetHeight());
+
+        telemetry.addData("Distance:", Math.abs(slide.getEncoderCount() - slide.getTargetHeight()));
+
+        telemetry.addData("State:", slide.isAtPosition());
+
+        telemetry.update();
     }
 }
