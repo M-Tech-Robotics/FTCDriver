@@ -40,8 +40,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
 
     //0.9969846009 0.9968006152 0.9973564719374416
-    public static double X_MULTIPLIER = 0.9973564719374416; // Multiplier in the X direction prev:1.00816614578
-    public static double Y_MULTIPLIER = 1.0055238128260873; // Multiplier in the Y direction
+    public static double X_MULTIPLIER = 0.9973564719374416; // Multiplier in the X direction prev:0.9973564719374416
+    public static double Y_MULTIPLIER = 1.0055238128260873; // Multiplier in the Y direction 1.0055238128260873
 
     public final String leftName = "leftFront";
     public final String rightName = "rightFront";

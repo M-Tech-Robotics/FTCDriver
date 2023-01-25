@@ -29,9 +29,9 @@ public class LinearSlide {
 
 
     public enum Levels {
-        High(0),
-        Mid(0),
-        Low(0),
+        High(1227),
+        Mid(896),
+        Low(405),
         Ground(0);
 
         public final int pos;
@@ -57,22 +57,24 @@ public class LinearSlide {
 //        }
 
 
-        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         leftSlide.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        rightSlide.setDirection(DcMotorSimple.Direction.FORWARD);
 
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
 
         leftSlide.setTargetPosition(Levels.Ground.pos);
         rightSlide.setTargetPosition(Levels.Ground.pos);
 
 
-        leftSlide.setPower(.4);
-        rightSlide.setPower(.4);
+        leftSlide.setPower(.8);
+        rightSlide.setPower(.8);
 
 
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -113,7 +115,7 @@ public class LinearSlide {
 
         do {
             Thread.sleep(40);
-        } while (!this.isAtPosition(15));
+        } while (!this.isAtPosition(10));
     }
 
     public void goTo(int Position) throws InterruptedException {
@@ -121,7 +123,7 @@ public class LinearSlide {
 
         do {
             Thread.sleep(40);
-        } while (!this.isAtPosition(15));
+        } while (!this.isAtPosition(10));
     }
 
     public void reset() {

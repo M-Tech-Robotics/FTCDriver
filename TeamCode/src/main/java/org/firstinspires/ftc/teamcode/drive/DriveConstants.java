@@ -133,7 +133,7 @@ public class DriveConstants {
 
 
     public static double MAX_VEL = 51.34267351154658;
-    public static double MAX_ACCEL = 20;
+    public static double MAX_ACCEL = 51.34267351154658;
 
 //    Max Angular Velocity (deg): 33.10422960504306
 //    Max Angular Velocity (rad): 0.5777778029441833

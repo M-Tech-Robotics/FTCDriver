@@ -21,26 +21,42 @@
 
 package org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag;
 
+import static java.lang.Math.toRadians;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.systems.Components.IMU;
 import org.firstinspires.ftc.teamcode.systems.Controllers.drivetrains.MainDriveTrain;
+import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
+import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-
+@Config
 @Autonomous(name = "Main Vision", group = "Testing")
 public class AprilTagVision extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagPipeline aprilTagPipeline;
-    MainDriveTrain drive;
+    IMU IMU;
 
+    SampleMecanumDrive drive;
+    LinearSlide slide;
+    Thread e;
+    Intake intake;
+
+    public boolean debug = true;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -67,14 +83,8 @@ public class AprilTagVision extends LinearOpMode
     AprilTagDetection tagOfInterest = null;
 
     @Override
-    public void runOpMode()
-    {
-        drive = new MainDriveTrain(hardwareMap, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        drive.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        drive.rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    public void runOpMode() throws InterruptedException {
+        InitAll();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -196,46 +206,60 @@ public class AprilTagVision extends LinearOpMode
         }
         else
         {
+            TrajectorySequence goToJunction = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
+                    .forward(48)
+                    .lineToSplineHeading(new Pose2d(62, -2, toRadians(-88))) //-6
+                    .build();
+
+            Trajectory lineUp = drive.trajectoryBuilder(goToJunction.end())
+                    .forward(6)
+                    .build();
+
+            TrajectorySequence goToParkPos = drive.trajectorySequenceBuilder(lineUp.end())
+                    .back(6)
+                    .lineToSplineHeading(new Pose2d(50, -2, toRadians(0)))
+                    .build();
+
+            TrajectorySequence park = tagToPath(tagOfInterest.id, goToParkPos.end());
+
+            //---------//
+
+            drive.followTrajectorySequence(goToJunction);
+            slide.goTo(LinearSlide.Levels.High);
+
+            drive.followTrajectory(lineUp);
+            intake.Release();
+
+            drive.followTrajectorySequence(goToParkPos);
+            slide.goTo(LinearSlide.Levels.Low);
+
+            if (debug) {
+                TrajectorySequence goToStack = drive.trajectorySequenceBuilder(goToParkPos.end())
+                        .lineToSplineHeading(new Pose2d(50, 30, toRadians(90)))
+                        .build();
+
+                TrajectorySequence goToPole = drive.trajectorySequenceBuilder(goToStack.end())
+                        .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
+                        .build();
+
+                drive.followTrajectorySequence(goToStack);
+
+                intake.Pickup();
+
+                drive.followTrajectorySequence(goToPole);
+
+                slide.goTo(LinearSlide.Levels.High);
+                intake.Release();
+
+
+            } else {
+                drive.followTrajectorySequence(park);
+            }
+
+
+
+
             telemetry.addLine(String.valueOf(tagOfInterest.id));
-
-            if (tagOfInterest.id == 16) {
-                telemetry.addLine("Tag: Left");
-                telemetry.update();
-                MoveTo("Forward", .7, 2);
-                sleep(800);
-
-                MoveTo("Left", .7, 1);
-                sleep(1000);
-
-
-                MoveTo("None", 0, 0);
-            }
-
-            if (tagOfInterest.id == 18) {
-                telemetry.addLine("Tag: Middle");
-                telemetry.update();
-
-                MoveTo("Forward", .7, 2);
-
-                sleep(800);
-
-                MoveTo("None", 0, 0);
-            }
-
-            if (tagOfInterest.id == 19) {
-                telemetry.addLine("Tag: Right");
-                telemetry.update();
-                MoveTo("Forward", .7, 2);
-
-                sleep(800);
-
-                MoveTo("Right", .7, 1);
-
-                sleep(900);
-
-
-                MoveTo("None", 0, 0);
-            }
         }
 
 
@@ -302,6 +326,29 @@ public class AprilTagVision extends LinearOpMode
         }
     }
 
+    TrajectorySequence tagToPath(int tag, Pose2d pos) {
+        switch (tag) {
+            case (16):
+                return drive.trajectorySequenceBuilder(pos)
+                        .strafeLeft(23)
+                        .build();
+            case (18):
+                return drive.trajectorySequenceBuilder(pos)
+//                        .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
+                        .build();
+            case (19):
+                return drive.trajectorySequenceBuilder(pos)
+                        .strafeRight(22)
+                        .build();
+        }
+        return null;
+    }
 
 
+    void InitAll() {
+        drive = new SampleMecanumDrive(hardwareMap);
+        intake = new Intake(hardwareMap);
+        IMU = new IMU(hardwareMap);
+        slide = new LinearSlide(hardwareMap);
+    }
 }
