@@ -78,6 +78,10 @@ public class DeadWheelTest extends LinearOpMode {
     }
 
     void odometryTelemetry() {
+        telemetry.addData("leftPos", leftOdometer.getPosition());
+        telemetry.addData("rightPos", rightOdometer.getPosition());
+        telemetry.addData("backPos", centerOdometer.getPosition());
+
         Pose2d pose = odometry.getPose();
         telemetry.addData("x", pose.getX());
         telemetry.addData("y", pose.getY());

@@ -213,6 +213,4 @@ public class OdometryTest extends LinearOpMode {
         left_front.motorEx.setPower(lf);
         left_back.motorEx.setPower(lb);
     }
-
-
 }

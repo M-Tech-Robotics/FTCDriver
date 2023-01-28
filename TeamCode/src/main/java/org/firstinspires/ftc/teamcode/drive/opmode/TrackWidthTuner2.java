@@ -8,7 +8,9 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.teamcode.util.LoggingUtil;
 
@@ -20,7 +22,7 @@ import java.util.List;
 @Config
 @Autonomous(group = "drive")
 public class TrackWidthTuner2 extends LinearOpMode {
-
+    public ElapsedTime time = new ElapsedTime();
     public static final File TRACK_WIDTH_DIR =
             new File(LoggingUtil.ROAD_RUNNER_FOLDER, "trackwidth");
 
@@ -55,7 +57,7 @@ public class TrackWidthTuner2 extends LinearOpMode {
         Data data = new Data();
 
         long t0 = System.nanoTime();
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !isStopRequested() && time.milliseconds() <= 15000) {
             leftFront.setPower(-power(System.nanoTime() - t0));
             rightFront.setPower(power(System.nanoTime() - t0));
             leftRear.setPower(-power(System.nanoTime() - t0));

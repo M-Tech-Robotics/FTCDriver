@@ -67,19 +67,11 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = false;
-//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-//            14.426575317778232); //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
-
-//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(21, 0, 3,
-//            15); //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV)
-
 
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
             getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
 
-//    kV = 0.01776, kStatic = 0.12010 (R^2 = 0.96)
-//    kA = 0.00018 (R^2 = 0.10)
 
 
 
@@ -93,7 +85,7 @@ public class DriveConstants {
      */
     public static double WHEEL_RADIUS = 1.88976; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 7.90; //10
+    public static double TRACK_WIDTH = 10.56496063;//7.90; //10
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -101,19 +93,11 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-//    public static double kV = 0.01978;
-//    public static double kA = 0.00020;
-//    public static double kStatic = 0.11900;
 
-//    public static double kV = 0.01793;
-//    public static double kA = 0.00015;
-//    public static double kStatic = 0.11220;
-
-    //kV = 0.01813, kStatic = 0.10998 (R^2 = 0.97)
-    //
-    public static double kV = 0.01813;
+    //kV = 0.01987, kStatic = 0.12264 (R^2 = 0.96)
+    public static double kV = 0.01987;
     public static double kA = 0.00001;
-    public static double kStatic = 0.10998;
+    public static double kStatic = 0.12264;
 
 
     /*
@@ -124,22 +108,16 @@ public class DriveConstants {
      * inches.
      */
 
-
-//    Max Velocity: 52.335779374726876
-//    Voltage Compensated kF: 14.147060881910702
-
+    public static double MAX_VEL = 50; // 52.48291908330528
+    public static double MAX_ACCEL = 20;
 
 
 
-
-    public static double MAX_VEL = 51.34267351154658;
-    public static double MAX_ACCEL = 51.34267351154658;
-
-//    Max Angular Velocity (deg): 33.10422960504306
-//    Max Angular Velocity (rad): 0.5777778029441833
+//    Max Angular Velocity (deg): 313.4912651167739
+//    Max Angular Velocity (rad): 5.47145475253015
 
 
-    public static double MAX_ANG_VEL = 5.816545437207842;
+    public static double MAX_ANG_VEL = 5.816545437207842; //5.816545437207842
     public static double MAX_ANG_ACCEL = Math.toRadians(180);
 
     public static double encoderTicksToInches(double ticks) {

@@ -18,13 +18,14 @@ import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
+import java.util.concurrent.CompletableFuture;
+
 
 @Config
 @Autonomous(name = "Main Auto", group = "Testing")
 public class Main extends LinearOpMode {
     SampleMecanumDrive drive;
     LinearSlide slide;
-    Thread e;
     Intake intake;
     DcMotorEx SlideEncoder;
 
@@ -71,14 +72,24 @@ public class Main extends LinearOpMode {
 //            .forward(4)
 //            .back(4)
 //            .build();
+    public interface Actions {
+
+
+
+}
+
 
     @Override
     public void runOpMode() throws InterruptedException {
         InitAll();
 
         TrajectorySequence test1 = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
-                .forward(48)
-                .lineToSplineHeading(new Pose2d(62, -2, toRadians(-92))) //-6
+//                .forward(48)
+                .lineToSplineHeading(new Pose2d(62, -2, toRadians(-90))) //-6
+                .forward(6)
+                .waitSeconds(2)
+//                .back(6)
+                .lineToSplineHeading(new Pose2d(50, 0, toRadians(90)))
 
 //                .waitSeconds(2)
 
@@ -93,20 +104,20 @@ public class Main extends LinearOpMode {
 //                .forward(4)
 //                .back(4)
                 .build();
-        Trajectory test2 = drive.trajectoryBuilder(test1.end())
-                .forward(6)
-                .build();
-        //// //// ////
-
-        TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
-                .back(6)
-                .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
-//                .forward(34)
-                .build();
-
-        TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
-                .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
-                .build();
+//        Trajectory test2 = drive.trajectoryBuilder(test1.end())
+//                .forward(6)
+//                .build();
+//        //// //// ////
+//
+//        TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
+//                .back(6)
+//                .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
+////                .forward(34)
+//                .build();
+//
+//        TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
+//                .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
+//                .build();
 
 
 
@@ -116,36 +127,29 @@ public class Main extends LinearOpMode {
         if (isStopRequested()) return;
 
         new Thread(() -> {
-           while (opModeIsActive() && !isStopRequested()) {
-               Pose2d poseEstimate = drive.getPoseEstimate();
-               telemetry.addData("Angle", IMU.getAngle());
-               telemetry.addData("finalX", poseEstimate.getX());
-               telemetry.addData("finalY", poseEstimate.getY());
-               telemetry.addData("finalHeading", poseEstimate.getHeading());
-               telemetry.update();
+           try {
+               slide.goTo(LinearSlide.Levels.High);
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
            }
-        });
+
+        }).start();
+
+
 
         drive.followTrajectorySequence(test1);
-
-        slide.goTo(LinearSlide.Levels.High);
-
-        drive.followTrajectory(test2);
-
-        intake.Release();
-
-        slide.goTo(LinearSlide.Levels.Low);
-
-        drive.followTrajectorySequence(test3);
-
-
+//        drive.followTrajectory(test2);
+//        drive.followTrajectorySequence(test3);
+//        CompletableFuture.runAsync(() -> {
+//
+//        });
+//        slide.goTo(LinearSlide.Levels.High);
+//        drive.followTrajectory(test2);
+//
 //        intake.Release();
-
-
-
-
-
-
+//        slide.goTo(LinearSlide.Levels.Low);
+//        drive.followTrajectorySequence(test3);
+//        intake.Release();
 //        slide.setTargetLevel(LinearSlide.Levels.Ground);
 
         telemetry.addData("Angle", IMU.getAngle());
@@ -177,5 +181,10 @@ public class Main extends LinearOpMode {
     public static double GridToInch(double Grids) {
         return Grids * 24;
     }
+
+
+//    public Runnable getThread() {
+//        return
+//    }
 
 }

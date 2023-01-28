@@ -86,5 +86,8 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
+.git/
+.hprof
 .DS_Store
 .idea
+*.hprof
