@@ -4,6 +4,9 @@ import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.Path;
+import com.acmerobotics.roadrunner.path.PathBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,9 +24,14 @@ public class AutonomousData {
     SampleMecanumDrive drive;
 
     public class POS {
-        public TrajectorySequence dropPreload = drive.trajectorySequenceBuilder(new Pose2d(36, 61, toRadians(270)))
+        public Path dropPreload = new PathBuilder(new Pose2d(36, 61, toRadians(270)))
                 .forward(48)
                 .lineToSplineHeading(new Pose2d(33, 0, toRadians(180)))
+                .build();
+
+        public Path test = new PathBuilder(new Pose2d(0, 0, 0))
+                .splineTo(new Vector2d(15, 15), 0)
+                .lineTo(new Vector2d(30, 15))
                 .build();
 
         public TrajectorySequence goToStack = drive.trajectorySequenceBuilder(dropPreload.end())

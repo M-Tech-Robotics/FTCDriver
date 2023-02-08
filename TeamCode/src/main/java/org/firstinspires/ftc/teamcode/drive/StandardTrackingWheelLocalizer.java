@@ -33,15 +33,15 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 10.64370079 ; // in; distance between the left and right wheels 9.92519692
-    public static double FORWARD_OFFSET = -5.81791355; //-6.01; // in; offset of the lateral wheel
+    public static double FORWARD_OFFSET = -6.17716549; //-6.01; // in; offset of the lateral wheel
 
 //    public static double X_MULTIPLIER = 0.9855055030192697; // Multiplier in the X direction prev:1.00816614578
 //    public static double Y_MULTIPLIER = 1.0048089; // Multiplier in the Y direction
 
 
     //0.9969846009 0.9968006152 0.9973564719374416
-    public static double X_MULTIPLIER = 0.9973564719374416; // Multiplier in the X direction prev:0.9973564719374416
-    public static double Y_MULTIPLIER = 1.0055238128260873; // Multiplier in the Y direction 1.0055238128260873
+    public static double X_MULTIPLIER = 1; // Multiplier in the X direction prev:0.9973564719374416
+    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction 1.0055238128260873
 
     public final String leftName = "leftFront";
     public final String rightName = "rightFront";

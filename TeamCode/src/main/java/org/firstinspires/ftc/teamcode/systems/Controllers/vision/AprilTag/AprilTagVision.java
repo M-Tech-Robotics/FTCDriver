@@ -206,58 +206,100 @@ public class AprilTagVision extends LinearOpMode
         }
         else
         {
-            TrajectorySequence goToJunction = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
-                    .forward(48)
-                    .lineToSplineHeading(new Pose2d(62, -2, toRadians(-88))) //-6
+            TrajectorySequence test1 = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
+//                .forward(48)
+                    .lineToSplineHeading(new Pose2d(63, -2, toRadians(-90))) //-6
                     .build();
-
-            Trajectory lineUp = drive.trajectoryBuilder(goToJunction.end())
+            TrajectorySequence test2 = drive.trajectorySequenceBuilder(test1.end())
                     .forward(6)
                     .build();
 
-            TrajectorySequence goToParkPos = drive.trajectorySequenceBuilder(lineUp.end())
+            TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
                     .back(6)
-                    .lineToSplineHeading(new Pose2d(50, -2, toRadians(0)))
+                    .lineToSplineHeading(new Pose2d(53, 0, toRadians(90)))
+                    .forward(30)
                     .build();
 
-            TrajectorySequence park = tagToPath(tagOfInterest.id, goToParkPos.end());
+            TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
+                    .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
+                    .forward(8)
+                    .waitSeconds(.5)
+                    .addDisplacementMarker(() -> {
+                        try {
+                            intake.Release();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .back(6)
+                    .build();
 
-            //---------//
+            TrajectorySequence startPark = drive.trajectorySequenceBuilder(test4.end())
+                    .lineToSplineHeading(new Pose2d(52, 0, toRadians(0)))
+                    .build();
 
-            drive.followTrajectorySequence(goToJunction);
+            TrajectorySequence park = tagToPath(tagOfInterest.id, startPark.end());
+            ///// ///// /////
+
+            runThread(() -> {
+                try {
+                    intake.Pickup();
+                    slide.goTo(LinearSlide.Levels.High);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+
+
+            drive.followTrajectorySequence(test1);
+
+            runThread(() -> {
+                try {
+                    slide.goTo(LinearSlide.Levels.High);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+
+            drive.followTrajectorySequence(test2);
+
+            runThread(() -> {
+                try {
+                    intake.Release();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+
+
+            drive.followTrajectorySequence(test3);
+
+            slide.setTargetPosition(218);
+            Thread.sleep(600);
+            intake.Pickup();
             slide.goTo(LinearSlide.Levels.High);
 
-            drive.followTrajectory(lineUp);
-            intake.Release();
-
-            drive.followTrajectorySequence(goToParkPos);
-            slide.goTo(LinearSlide.Levels.Low);
-
-            if (debug) {
-                TrajectorySequence goToStack = drive.trajectorySequenceBuilder(goToParkPos.end())
-                        .lineToSplineHeading(new Pose2d(50, 30, toRadians(90)))
-                        .build();
-
-                TrajectorySequence goToPole = drive.trajectorySequenceBuilder(goToStack.end())
-                        .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
-                        .build();
-
-                drive.followTrajectorySequence(goToStack);
-
-                intake.Pickup();
-
-                drive.followTrajectorySequence(goToPole);
-
-                slide.goTo(LinearSlide.Levels.High);
-                intake.Release();
-
-
-            } else {
-                drive.followTrajectorySequence(park);
-            }
+            drive.followTrajectorySequence(test4);
 
 
 
+            drive.followTrajectorySequence(startPark);
+
+            drive.followTrajectorySequence(park);
+
+            runThread(() -> {
+                try {
+                    slide.goTo(LinearSlide.Levels.Ground);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
 
             telemetry.addLine(String.valueOf(tagOfInterest.id));
         }
@@ -278,54 +320,10 @@ public class AprilTagVision extends LinearOpMode
     }
 
 
-    void MoveTo(String Direction, double Power, int Time) {
-        if (Direction == "Forward") {
-            drive.leftFront.setPower(Power);
-            drive.leftRear.setPower(Power);
-            drive.rightFront.setPower(Power);
-            drive.rightRear.setPower(Power);
-
-            return;
-        }
-
-        if (Direction == "Left") {
-            drive.leftFront.setPower(-Power);
-            drive.leftRear.setPower(Power);
-            drive.rightFront.setPower(Power);
-            drive.rightRear.setPower(-Power);
-
-            return;
-        }
-
-        if (Direction == "Right") {
-            drive.leftFront.setPower(Power);
-            drive.leftRear.setPower(-Power);
-            drive.rightFront.setPower(-Power);
-            drive.rightRear.setPower(Power);
-
-            return;
-        }
-
-        if (Direction == "Back") {
-            drive.leftFront.setPower(-Power);
-            drive.leftRear.setPower(-Power);
-            drive.rightFront.setPower(-Power);
-            drive.rightRear.setPower(-Power);
-
-            return;
-        }
-
-
-        if (Direction == "None") {
-            drive.leftFront.setPower(0);
-            drive.leftRear.setPower(0);
-            drive.rightFront.setPower(0);
-            drive.rightRear.setPower(0);
-
-            return;
-        }
+    void runThread(Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
-
     TrajectorySequence tagToPath(int tag, Pose2d pos) {
         switch (tag) {
             case (16):

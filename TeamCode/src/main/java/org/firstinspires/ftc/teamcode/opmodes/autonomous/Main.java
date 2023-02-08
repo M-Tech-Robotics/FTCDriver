@@ -5,6 +5,8 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.Path;
+import com.acmerobotics.roadrunner.path.PathBuilder;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.systems.Components.IMU;
+import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
 import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -26,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 public class Main extends LinearOpMode {
     SampleMecanumDrive drive;
     LinearSlide slide;
+    Corrector corrector;
     Intake intake;
     DcMotorEx SlideEncoder;
 
@@ -83,13 +87,47 @@ public class Main extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         InitAll();
 
+
         TrajectorySequence test1 = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
 //                .forward(48)
-                .lineToSplineHeading(new Pose2d(62, -2, toRadians(-90))) //-6
-                .forward(6)
-                .waitSeconds(2)
+                .addDisplacementMarker(() -> {
+                    runThread(() -> {
+                        try {
+                            intake.Pickup();
+                            slide.goTo(LinearSlide.Levels.High);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                })
+                .lineToSplineHeading(new Pose2d(61, -2, toRadians(-90))) //-6
+                .runThread(() -> {
+                    try {
+                        intake.Pickup();
+                        slide.goTo(LinearSlide.Levels.High);
+                        corrector.Out();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+//                .addDisplacementMarker(() -> {
+//                    try {
+//                        slide.goTo(LinearSlide.Levels.High);
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//                .forward(6)
+//                .addDisplacementMarker(() -> {
+//                    try {
+//                        intake.Release();
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//                .waitSeconds(2)
 //                .back(6)
-                .lineToSplineHeading(new Pose2d(50, 0, toRadians(90)))
+//                .lineToSplineHeading(new Pose2d(50, 0, toRadians(90)))
 
 //                .waitSeconds(2)
 
@@ -104,21 +142,31 @@ public class Main extends LinearOpMode {
 //                .forward(4)
 //                .back(4)
                 .build();
-//        Trajectory test2 = drive.trajectoryBuilder(test1.end())
-//                .forward(6)
-//                .build();
-//        //// //// ////
-//
-//        TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
-//                .back(6)
-//                .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
-////                .forward(34)
-//                .build();
-//
-//        TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
-//                .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
-//                .build();
+        TrajectorySequence test2 = drive.trajectorySequenceBuilder(test1.end())
+                .forward(6)
+                .build();
 
+        TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
+                .back(6)
+                .lineToSplineHeading(new Pose2d(53, 0, toRadians(90)))
+                .forward(28)
+                .build();
+
+        TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
+                .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
+                .forward(8)
+                .waitSeconds(.5)
+                .addDisplacementMarker(() -> {
+                    try {
+                        intake.Release();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .back(6)
+                .build();
+
+//        //// //// ////
 
 
         waitForStart();
@@ -126,32 +174,38 @@ public class Main extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        new Thread(() -> {
-           try {
-               slide.goTo(LinearSlide.Levels.High);
-           } catch (InterruptedException e) {
-               throw new RuntimeException(e);
-           }
-
-        }).start();
-
-
-
         drive.followTrajectorySequence(test1);
-//        drive.followTrajectory(test2);
-//        drive.followTrajectorySequence(test3);
-//        CompletableFuture.runAsync(() -> {
-//
-//        });
-//        slide.goTo(LinearSlide.Levels.High);
-//        drive.followTrajectory(test2);
-//
-//        intake.Release();
-//        slide.goTo(LinearSlide.Levels.Low);
-//        drive.followTrajectorySequence(test3);
-//        intake.Release();
-//        slide.setTargetLevel(LinearSlide.Levels.Ground);
 
+        drive.followTrajectorySequence(test2);
+
+        runThread(() -> {
+            try {
+                intake.Release();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
+
+        drive.followTrajectorySequence(test3);
+
+        corrector.In();
+        slide.setTargetPosition(218);
+        Thread.sleep(600);
+        intake.Pickup();
+        slide.goTo(LinearSlide.Levels.High);
+        corrector.Out();
+
+        drive.followTrajectorySequence(test4);
+
+        corrector.In();
+
+        Thread.sleep(1500);
+        debugTelementry();
+    }
+
+    void debugTelementry() {
         telemetry.addData("Angle", IMU.getAngle());
         Pose2d poseEstimate = drive.getPoseEstimate();
         telemetry.addData("finalX", poseEstimate.getX());
@@ -165,6 +219,7 @@ public class Main extends LinearOpMode {
         intake = new Intake(hardwareMap);
         IMU = new IMU(hardwareMap);
         slide = new LinearSlide(hardwareMap);
+        corrector = new Corrector(hardwareMap);
     }
 
     void pickupCone() throws InterruptedException {
@@ -173,18 +228,11 @@ public class Main extends LinearOpMode {
 
     }
 
-    void dropCone() {
-
+    void runThread(Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
-
-
     public static double GridToInch(double Grids) {
         return Grids * 24;
     }
-
-
-//    public Runnable getThread() {
-//        return
-//    }
-
 }

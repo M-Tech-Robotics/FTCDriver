@@ -29,7 +29,7 @@ public class LinearSlide {
 
 
     public enum Levels {
-        High(1227),
+        High(1300),
         Mid(896),
         Low(405),
         Ground(0);
@@ -115,7 +115,7 @@ public class LinearSlide {
 
         do {
             Thread.sleep(40);
-        } while (!this.isAtPosition(10));
+        } while (!this.isAtPosition(15));
     }
 
     public void goTo(int Position) throws InterruptedException {
@@ -123,7 +123,7 @@ public class LinearSlide {
 
         do {
             Thread.sleep(40);
-        } while (!this.isAtPosition(10));
+        } while (!this.isAtPosition(15));
     }
 
     public void reset() {

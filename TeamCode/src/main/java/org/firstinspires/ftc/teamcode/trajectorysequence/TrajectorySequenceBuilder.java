@@ -382,6 +382,13 @@ public class TrajectorySequenceBuilder {
         return this;
     }
 
+    public TrajectorySequenceBuilder runThread(Runnable runnable) {
+        Thread thread = new Thread(runnable);
+        thread.start();
+
+        return this;
+    }
+
     public TrajectorySequenceBuilder addTemporalMarker(MarkerCallback callback) {
         return this.addTemporalMarker(currentDuration, callback);
     }
@@ -409,6 +416,9 @@ public class TrajectorySequenceBuilder {
     }
 
     public TrajectorySequenceBuilder addDisplacementMarker(MarkerCallback callback) {
+        return this.addDisplacementMarker(currentDisplacement, callback);
+    }
+    public TrajectorySequenceBuilder addMarker(MarkerCallback callback) {
         return this.addDisplacementMarker(currentDisplacement, callback);
     }
 
