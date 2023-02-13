@@ -5,21 +5,14 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
-import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.AprilTag;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.CameraOpMode;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.openftc.apriltag.AprilTagDetection;
 
-@Autonomous(name = "Main Auto", group = "Testing")
-public class Main extends CameraOpMode {
+@Autonomous(name = "Preload Park", group = "Testing")
+public class PreloadPark extends CameraOpMode {
     public AprilTag aprilTag;
     static final double FEET_PER_METER = 3.28084;
     public AprilTag.Tags tag;
@@ -30,7 +23,7 @@ public class Main extends CameraOpMode {
 
         TrajectorySequence goToPole = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
 //                .forward(48)
-                .lineToSplineHeading(new Pose2d(61, -2, toRadians(-90))) //-6
+                .lineToSplineHeading(new Pose2d(62, -2, toRadians(-90))) //-6
                 .build();
         TrajectorySequence scootUp = drive.trajectorySequenceBuilder(goToPole.end())
                 .forward(6)
@@ -39,53 +32,11 @@ public class Main extends CameraOpMode {
         TrajectorySequence backUp = drive.trajectorySequenceBuilder(scootUp.end())
                 .back(6)
                 .setTurnConstraint(325.473, toRadians(100))
-                .lineToSplineHeading(new Pose2d(51, 0, toRadians(86)))
-                .runThread(() -> {
-                    intake.corrector.In();
-                })
-                .forward(30)
-                .build();
-
-        TrajectorySequence dropCones = drive.trajectorySequenceBuilder(backUp.end())
-//                .back(48)
-                .runThread(() -> {
-                    try {
-                        intake.Pickup();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .lineToSplineHeading(new Pose2d(50, -11, toRadians(0)))
-                .forward(7)
-                .waitSeconds(.5)
-                .addDisplacementMarker(() -> {
-                    try {
-                        intake.Release();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
+                .lineToSplineHeading(new Pose2d(51, 0, toRadians(0)))
                 .build();
 
 
-
-
-
-        TrajectorySequence backToCones = drive.trajectorySequenceBuilder(dropCones.end())
-                .lineToSplineHeading(new Pose2d(51, 0, toRadians(88)))
-                .forward(30)
-                .build();
-
-
-
-
-
-
-
-
-
-        Trajectory traj = tagToPath(dropCones.end());
+        Trajectory traj = tagToPath(backUp.end());
 
         // // // // // Main Methods // // // // //
 
@@ -140,19 +91,6 @@ public class Main extends CameraOpMode {
         drive.followTrajectorySequence(backUp);
 
         // Pick up Cone //
-        pickupCones(218);
-//
-
-        runThread(() -> {
-            try {
-                intake.Pickup();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
-        // Drop cone on Junction //
-        drive.followTrajectorySequence(dropCones);
 
         // Back to the stack //
         drive.followTrajectory(traj);

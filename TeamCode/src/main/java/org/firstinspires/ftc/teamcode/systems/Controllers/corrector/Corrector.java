@@ -11,7 +11,7 @@ public class Corrector {
 
     Positions currentState;
     public enum Positions {
-        Out(90),
+        Out(80),
         In(0);
         public final int pos;
 

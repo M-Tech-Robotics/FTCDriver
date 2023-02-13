@@ -29,7 +29,7 @@ public class LinearSlide {
 
 
     public enum Levels {
-        High(1300),
+        High(1200),
         Mid(896),
         Low(405),
         Ground(0);
@@ -73,8 +73,8 @@ public class LinearSlide {
         rightSlide.setTargetPosition(Levels.Ground.pos);
 
 
-        leftSlide.setPower(.8);
-        rightSlide.setPower(.8);
+        leftSlide.setPower(1);
+        rightSlide.setPower(1);
 
 
         leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);

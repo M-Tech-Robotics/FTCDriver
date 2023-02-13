@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
 import org.firstinspires.ftc.teamcode.systems.Controllers.drivetrains.MainDriveTrain;
 import org.firstinspires.ftc.teamcode.systems.Controllers.linearSlide.linearSlide;
 
@@ -15,7 +16,7 @@ public class OnePerson extends LinearOpMode {
     linearSlide Slide;
 
     DcMotorEx IntakeMotor;
-
+    Corrector corrector;
     GamepadEx Driver1;
     GamepadEx Driver2;
 
@@ -27,6 +28,7 @@ public class OnePerson extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Drive = new MainDriveTrain(hardwareMap, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Slide = new linearSlide(hardwareMap);
+        corrector = new Corrector(hardwareMap);
 
         IntakeMotor = hardwareMap.get(DcMotorEx.class, "IntakeMotor");
         IntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -46,6 +48,7 @@ public class OnePerson extends LinearOpMode {
             Driver1Controls();
             SlideController();
             PickupCone();
+//            CorrectorControls();
         }
     }
 
@@ -54,7 +57,7 @@ public class OnePerson extends LinearOpMode {
         Slide.rightSlide.setPower(-gamepad1.right_trigger);
 
 
-        if (gamepad1.dpad_down) {
+        if (gamepad1.left_trigger != 0 || gamepad1.dpad_down) {
             Slide.leftSlide.setPower(1.0);
             Slide.rightSlide.setPower(1.0);
         } else if (gamepad1.right_trigger == 0) {
@@ -102,4 +105,13 @@ public class OnePerson extends LinearOpMode {
 //        IntakeMotor.setPower(-gamepad1.right_trigger);
     }
 
+    public void CorrectorControls() {
+        if (gamepad1.dpad_left) {
+            corrector.setState(Corrector.Positions.In);
+        }
+
+        if (gamepad1.dpad_right) {
+            corrector.setState(Corrector.Positions.Out);
+        }
+    }
 }

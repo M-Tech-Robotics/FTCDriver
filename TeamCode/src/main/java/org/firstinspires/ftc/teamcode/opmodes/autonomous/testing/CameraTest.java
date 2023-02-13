@@ -1,25 +1,21 @@
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
+package org.firstinspires.ftc.teamcode.opmodes.autonomous.testing;
 
 import static java.lang.Math.toRadians;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
-import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.AprilTag;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.CameraOpMode;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 
-@Autonomous(name = "Main Auto", group = "Testing")
-public class Main extends CameraOpMode {
+@Autonomous(name = "Test Auto", group = "Testing")
+public class CameraTest extends CameraOpMode {
     public AprilTag aprilTag;
     static final double FEET_PER_METER = 3.28084;
     public AprilTag.Tags tag;
@@ -38,10 +34,9 @@ public class Main extends CameraOpMode {
 
         TrajectorySequence backUp = drive.trajectorySequenceBuilder(scootUp.end())
                 .back(6)
-                .setTurnConstraint(325.473, toRadians(100))
-                .lineToSplineHeading(new Pose2d(51, 0, toRadians(86)))
+                .lineToSplineHeading(new Pose2d(51, 0, toRadians(88)))
                 .runThread(() -> {
-                    intake.corrector.In();
+                    corrector.In();
                 })
                 .forward(30)
                 .build();
@@ -157,7 +152,7 @@ public class Main extends CameraOpMode {
         // Back to the stack //
         drive.followTrajectory(traj);
 
-        intake.corrector.In();
+        corrector.In();
 
         slide.goTo(LinearSlide.Levels.Ground);
 //
@@ -190,12 +185,16 @@ public class Main extends CameraOpMode {
     }
 
     void debugTelementry() {
+//        Pose2d poseEstimate = drive.getPoseEstimate();
+//        telemetry.addData("finalX", poseEstimate.getX());
+//        telemetry.addData("finalY", poseEstimate.getY());
+//        telemetry.addData("finalHeading", poseEstimate.getHeading());
         telemetry.addData("Park Pos", CurrentTag.name());
         telemetry.update();
     }
 
     void pickupCones(int pos) throws InterruptedException {
-        intake.corrector.In();
+        corrector.In();
         slide.goTo(pos);
         intake.Pickup();
         slide.goTo(LinearSlide.Levels.High);

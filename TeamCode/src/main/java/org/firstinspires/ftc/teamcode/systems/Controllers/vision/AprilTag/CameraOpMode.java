@@ -25,18 +25,18 @@ import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.systems.Components.IMU;
-import org.firstinspires.ftc.teamcode.systems.Controllers.drivetrains.MainDriveTrain;
+import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
 import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
+import org.firstinspires.ftc.teamcode.systems.Utils.MiscUtils;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -44,20 +44,35 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
-@Disabled
-@Autonomous(name = "Main Vision", group = "Testing")
-public class AprilTagVision extends LinearOpMode
-{
+import java.util.concurrent.CancellationException;
+
+public abstract class CameraOpMode extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagPipeline aprilTagPipeline;
+
+    public SampleMecanumDrive drive;
+    public LinearSlide slide;
+    public Corrector corrector;
+    public Intake intake;
+    public DcMotorEx SlideEncoder;
+
     IMU IMU;
 
-    SampleMecanumDrive drive;
-    LinearSlide slide;
-    Thread e;
-    Intake intake;
+    public enum Tags {
+        Left(16),
+        Middle(18),
+        Right(19);
 
-    public boolean debug = true;
+        public final int tag;
+
+        Tags(int tag) {
+            this.tag = tag;
+        }
+    }
+
+
+
+    public Tags CurrentTag;
 
     static final double FEET_PER_METER = 3.28084;
 
@@ -70,18 +85,14 @@ public class AprilTagVision extends LinearOpMode
     double cy = 221.506;
 
 
-    int[] FTCTags = {
-            16,
-            18,
-            19
-    };
 
     // UNITS ARE METERS
     double tagsize = 0.166;
 
-    int ID_TAG_OF_INTEREST = 18; // Tag ID 18 from the 36h11 family
 
     AprilTagDetection tagOfInterest = null;
+
+    public abstract void opModeMain() throws InterruptedException;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -117,64 +128,48 @@ public class AprilTagVision extends LinearOpMode
 
 
 
-        while (!isStarted() && !isStopRequested())
-        {
+        while (!isStarted() && !isStopRequested()) {
             ArrayList<AprilTagDetection> currentDetections = aprilTagPipeline.getLatestDetections();
 
-            if(currentDetections.size() != 0)
-            {
+            if(currentDetections.size() != 0) {
                 boolean tagFound = false;
 
-                for(AprilTagDetection tag : currentDetections)
-                {
-                    for (int TeamTag : FTCTags) {
-                        if(tag.id == TeamTag)
-                        {
+                for(AprilTagDetection tag : currentDetections) {
+                    for (Tags TeamTag : Tags.values()) {
+                        if(tag.id == TeamTag.tag) {
                             tagOfInterest = tag;
+                            CurrentTag = TeamTag;
                             tagFound = true;
                             break;
                         }
                     }
-
                 }
 
-                if(tagFound)
-                {
+                if(tagFound) {
                     telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
                     tagToTelemetry(tagOfInterest);
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("Don't see tag of interest :(");
 
-                    if(tagOfInterest == null)
-                    {
+                    if(tagOfInterest == null) {
                         telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else
-                    {
+                    } else {
                         telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                         tagToTelemetry(tagOfInterest);
                     }
                 }
 
-            }
-            else
-            {
+            } else {
                 telemetry.addLine("Don't see tag of interest :(");
 
-                if(tagOfInterest == null)
-                {
+                if(tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
-                }
-                else
-                {
+                } else {
                     telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
 
             }
-
             telemetry.update();
             sleep(20);
         }
@@ -207,108 +202,29 @@ public class AprilTagVision extends LinearOpMode
         }
         else
         {
-            TrajectorySequence test1 = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
-//                .forward(48)
-                    .lineToSplineHeading(new Pose2d(63, -2, toRadians(-90))) //-6
-                    .build();
-            TrajectorySequence test2 = drive.trajectorySequenceBuilder(test1.end())
-                    .forward(6)
-                    .build();
-
-            TrajectorySequence test3 = drive.trajectorySequenceBuilder(test2.end())
-                    .back(6)
-                    .lineToSplineHeading(new Pose2d(53, 0, toRadians(90)))
-                    .forward(30)
-                    .build();
-
-            TrajectorySequence test4 = drive.trajectorySequenceBuilder(test3.end())
-                    .lineToSplineHeading(new Pose2d(50, -12, toRadians(0)))
-                    .forward(8)
-                    .waitSeconds(.5)
-                    .addDisplacementMarker(() -> {
-                        try {
-                            intake.Release();
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .back(6)
-                    .build();
-
-            TrajectorySequence startPark = drive.trajectorySequenceBuilder(test4.end())
-                    .lineToSplineHeading(new Pose2d(52, 0, toRadians(0)))
-                    .build();
-
-            TrajectorySequence park = tagToPath(tagOfInterest.id, startPark.end());
-            ///// ///// /////
-
-            runThread(() -> {
-                try {
-                    intake.Pickup();
-                    slide.goTo(LinearSlide.Levels.High);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            });
-
-
-
-            drive.followTrajectorySequence(test1);
-
-            runThread(() -> {
-                try {
-                    slide.goTo(LinearSlide.Levels.High);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            });
-
-
-            drive.followTrajectorySequence(test2);
-
-            runThread(() -> {
-                try {
-                    intake.Release();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            });
-
-
-            drive.followTrajectorySequence(test3);
-
-            slide.setTargetPosition(218);
-            Thread.sleep(600);
-            intake.Pickup();
-            slide.goTo(LinearSlide.Levels.High);
-
-            drive.followTrajectorySequence(test4);
-
-
-
-            drive.followTrajectorySequence(startPark);
-
-            drive.followTrajectorySequence(park);
-
-            runThread(() -> {
-                try {
-                    slide.goTo(LinearSlide.Levels.Ground);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            });
-
-            telemetry.addLine(String.valueOf(tagOfInterest.id));
+            try {
+                opModeMain();
+            } catch (InterruptedException | CancellationException e) {
+                RobotLog.d("OpMode Terminated, exiting");
+            } catch (Exception | AssertionError e) {
+                RobotLog.dd("Exception Was thrown", e, "This exception was thrown and resulted in a early termination of the OpMode");
+                RobotLog.setGlobalErrorMsg(MiscUtils.getStackTraceAsString(e)); //Appends more information to the error message
+            } catch (NoClassDefFoundError e) {
+                throw e;
+            } catch (Throwable t) {
+                RobotLog.dd("Throwable Was thrown", t, "This Throwable was thrown and resulted in a early termination of the OpMode (And likely everything else)");
+                throw t;
+            } finally {
+                this.cleanup();
+            }
         }
 
 
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
         while (opModeIsActive()) {sleep(20);}
     }
+
+    protected void cleanup() {}
 
     void tagToTelemetry(AprilTagDetection detection) {
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
@@ -325,29 +241,30 @@ public class AprilTagVision extends LinearOpMode
         Thread thread = new Thread(runnable);
         thread.start();
     }
-    TrajectorySequence tagToPath(int tag, Pose2d pos) {
-        switch (tag) {
-            case (16):
-                return drive.trajectorySequenceBuilder(pos)
-                        .strafeLeft(23)
-                        .build();
-            case (18):
-                return drive.trajectorySequenceBuilder(pos)
-//                        .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
-                        .build();
-            case (19):
-                return drive.trajectorySequenceBuilder(pos)
-                        .strafeRight(22)
-                        .build();
-        }
-        return null;
-    }
 
-
-    void InitAll() {
+    public void InitAll() {
         drive = new SampleMecanumDrive(hardwareMap);
         intake = new Intake(hardwareMap);
         IMU = new IMU(hardwareMap);
         slide = new LinearSlide(hardwareMap);
+        corrector = new Corrector(hardwareMap);
     }
+
+//    TrajectorySequence tagToPath(int tag, Pose2d pos) {
+//        switch (tag) {
+//            case (16):
+//                return drive.trajectorySequenceBuilder(pos)
+//                        .strafeLeft(23)
+//                        .build();
+//            case (18):
+//                return drive.trajectorySequenceBuilder(pos)
+////                        .lineToSplineHeading(new Pose2d(50, 0, toRadians(0)))
+//                        .build();
+//            case (19):
+//                return drive.trajectorySequenceBuilder(pos)
+//                        .strafeRight(22)
+//                        .build();
+//        }
+//        return null;
+//    }
 }

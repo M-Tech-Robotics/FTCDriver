@@ -5,28 +5,20 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
-import org.firstinspires.ftc.teamcode.systems.Controllers.intake.Intake;
 import org.firstinspires.ftc.teamcode.systems.Controllers.newLinearSlide.LinearSlide;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.AprilTag;
 import org.firstinspires.ftc.teamcode.systems.Controllers.vision.AprilTag.CameraOpMode;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.openftc.apriltag.AprilTagDetection;
 
-@Autonomous(name = "Main Auto", group = "Testing")
-public class Main extends CameraOpMode {
+@Autonomous(name = "Testing Auto", group = "Testing")
+public class Testing extends CameraOpMode {
     public AprilTag aprilTag;
     static final double FEET_PER_METER = 3.28084;
     public AprilTag.Tags tag;
 
     @Override
     public void opModeMain() throws InterruptedException {
-//        waitForStart();
 
         TrajectorySequence goToPole = drive.trajectorySequenceBuilder(new Pose2d(0, 0, toRadians(0)))
 //                .forward(48)
@@ -47,7 +39,7 @@ public class Main extends CameraOpMode {
                 .build();
 
         TrajectorySequence dropCones = drive.trajectorySequenceBuilder(backUp.end())
-//                .back(48)
+                .back(48)
                 .runThread(() -> {
                     try {
                         intake.Pickup();
@@ -154,34 +146,47 @@ public class Main extends CameraOpMode {
         // Drop cone on Junction //
         drive.followTrajectorySequence(dropCones);
 
+        // Pick up Cone //
+
+        drive.followTrajectorySequence(backUp);
+
+        // Pick up Cone //
+        pickupCones(190);
+//
+
+        runThread(() -> {
+            try {
+                intake.Pickup();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+        // Drop cone on Junction //
+        drive.followTrajectorySequence(dropCones);
+
         // Back to the stack //
         drive.followTrajectory(traj);
 
         intake.corrector.In();
 
         slide.goTo(LinearSlide.Levels.Ground);
-//
-
-//        corrector.In();
-
-        debugTelementry();
-
     }
 
     public Trajectory tagToPath(Pose2d pos) {
         switch (CurrentTag.name()) {
             case("Left"):
-                return drive.trajectoryBuilder(pos)
+                return drive.trajectoryBuilder(new Pose2d(51, 0, toRadians(0)))
                         .strafeLeft(25)
                         .build();
 
             case("Middle"):
-                return drive.trajectoryBuilder(pos)
+                return drive.trajectoryBuilder(new Pose2d(51, 0, toRadians(0)))
                         .back(1)
                         .build();
 
             case("Right"):
-                return drive.trajectoryBuilder(pos)
+                return drive.trajectoryBuilder(new Pose2d(51, 0, toRadians(0)))
                         .strafeRight(25)
                         .build();
         }

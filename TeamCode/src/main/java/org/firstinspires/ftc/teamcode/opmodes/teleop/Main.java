@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.teamcode.systems.Controllers.corrector.Corrector;
 import org.firstinspires.ftc.teamcode.systems.Controllers.linearSlide.linearSlide;
 import org.firstinspires.ftc.teamcode.systems.Controllers.drivetrains.MainDriveTrain;
 
@@ -14,6 +15,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 public class Main extends LinearOpMode {
     MainDriveTrain Drive;
     linearSlide Slide;
+    Corrector corrector;
 
     DcMotorEx IntakeMotor;
 
@@ -28,6 +30,7 @@ public class Main extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Drive = new MainDriveTrain(hardwareMap, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         Slide = new linearSlide(hardwareMap);
+        corrector = new Corrector(hardwareMap);
 
         IntakeMotor = hardwareMap.get(DcMotorEx.class, "IntakeMotor");
         IntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -43,7 +46,7 @@ public class Main extends LinearOpMode {
         telemetry.addData("Made by:", "Mick");
         telemetry.update();
 
-        while (opModeIsActive() && !isStopRequested()){
+        while (opModeIsActive() && !isStopRequested()) {
             Driver1Controls();
             SlideController();
             PickupCone();
@@ -76,7 +79,7 @@ public class Main extends LinearOpMode {
 
         if (gamepad1.y) {
             DriveSpeed = 1;
-         } else if (gamepad1.b) {
+        } else if (gamepad1.b) {
             DriveSpeed = 0.8;
         } else if (gamepad1.a) {
             DriveSpeed = 0.5;
@@ -103,4 +106,13 @@ public class Main extends LinearOpMode {
 //        IntakeMotor.setPower(-gamepad2.right_trigger);
     }
 
+    public void CorrectorControls() {
+        if (gamepad2.a) {
+            corrector.setState(Corrector.Positions.In);
+        }
+
+        if (gamepad2.b) {
+            corrector.setState(Corrector.Positions.Out);
+        }
+    }
 }
