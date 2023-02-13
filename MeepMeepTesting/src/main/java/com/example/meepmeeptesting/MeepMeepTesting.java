@@ -18,9 +18,10 @@ import java.util.Random;
 
 public class MeepMeepTesting {
     private static double GridSize;
+    static MeepMeep meepMeep;
 
     public static void main(String[] args) {
-        MeepMeep meepMeep = new MeepMeep(800);
+        meepMeep = new MeepMeep(800);
         GridSize = 70 / 3;
 
         meepMeep.getWindowFrame().setTitle("MeepMeep | FTC Debugger | ONLY FOR MICK");
